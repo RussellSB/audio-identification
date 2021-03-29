@@ -1,85 +1,148 @@
 import librosa
-import librosa.display
 from matplotlib import pyplot as plt
 import numpy as np
 
 import scipy.ndimage as ndimage
-import scipy.ndimage.filters as filterss
 from skimage.morphology import disk, diamond, square
 
-# Custom implementation for picking peaks
-def pick_peaks(D, shape='square', size=10, uniform=True, show=False):
+import os
+from tqdm.auto import tqdm
+from util import save_pickle, load_pickle
 
-    # The only shapes available are square, diamond and disk.
-    assert shape == 'square' or shape == 'diamond' or shape == 'disk',\
-    'Parameter shape must be set to \'disk\', \'diamond\' or \'square\''
+# Making a class so that parameter information can be stored alongside data in an object
+class fingerPrintBuilder:
+    def __init__(self, dataPath, indexPath,
+                spectype='stft', n_fft=1024, window='hann', win_length=1024, hop_length=512,
+                shape='disk', neighbourhood=10, uniform=True, show=False,
+                gap=50, targetsize=(200, 200)):
 
-    # Compute the constellation map
-    data = np.log(D)
-    footprint = eval(shape + '(' + str(size) + ')')  # formulates kernel from params
-    max_blobs = ndimage.maximum_filter(data, footprint=footprint)
-    const_map = data == max_blobs
+        # Parameters for spectrogram
+        self.spectype = spectype
+        self.n_fft = n_fft
+        self.window = window
+        self.win_length = win_length
+        self.hop_length = hop_length
 
-    # Only considers the points within a normal distribution
-    if uniform:
-        stdev = np.std(max_blobs)
-        mean = np.mean(max_blobs)
-        distribution = np.multiply(data >= (mean-stdev), data <= (mean+stdev))
-        const_map = np.multiply(const_map, distribution)
+        # Parameters for peak picking
+        self.shape = shape
+        self.neighbourhood = neighbourhood
+        self.uniform = uniform
+        self.show = show
 
-    if(show):
-        plt.figure(figsize=(20, 5))
-        plt.title('Spectrogram')
-        plt.xlabel('Frames')
-        plt.ylabel('Frequency bins')
-        plt.imshow(librosa.amplitude_to_db(D,ref=np.max), origin='lower', cmap='gray_r')
+        # Parameters for combinatorial hashing
+        self.gap = gap
+        self.targetsize = targetsize
 
-        plt.figure(figsize=(20, 5))
-        plt.title('Max Blobs')
-        plt.xlabel('Frames')
-        plt.ylabel('Frequency bins')
-        plt.imshow(max_blobs, origin='lower', cmap='gray_r')
+        # Stores hashed data for matching
+        self.data = {}
+        self.identity2title = []
 
-        plt.figure(figsize=(20, 5))
-        plt.title('Constillaiton Map')
-        plt.xlabel('Frames')
-        plt.ylabel('Frequency bins')
-        plt.imshow(const_map, origin='lower', cmap='gray_r')
+        # Looping through all data and saving (assumes the whole directory is full of wavs to index)
+        for identity, filename in enumerate(tqdm(os.listdir(dataPath))):
+            self.identity2title.append(filename[:-4])  # Keeping track of id and title
+            hash_dict = self.fingerprint(dataPath+'/'+filename, identity)
+            self.data.update(hash_dict)
 
-    # Gets coordinate information
-    freq_y, time_x = np.nonzero(const_map)
-    coordinates = list(zip(freq_y, time_x))
+        save_pickle(self, indexPath)  # saves itself as an object with data and parameter info
 
-    # Sorts with respect to time then frequency
-    coordinates = sorted(coordinates , key=lambda p: [p[1], p[0]])
-
-    return coordinates
-
-
-# Note that size is in terms of (frequency bins, time frames)
-def hash_peaks(peaks, gap=200, size=(200, 200)):
-    
-    d = {}
-
-    # Iterate through anchor points
-    for anchor in peaks:
+    # Finger prints an audio file with a number of adjustable parameters
+    def fingerprint(self, audio_file, identity):
         
-        # Preparing target zone boundaries
-        freq_start = anchor[0] - (size[0]//2)
-        freq_end = anchor[0] + (size[0]//2)
-        time_start = anchor[1] + gap
-        time_end = time_start + size[1]
+        x, sr = librosa.load(os.path.join(audio_file))
         
-        # Hash only points within the target zone
-        for target in peaks:
+        # Loading spectrogram 
+        if self.spectype == 'stft':
+            D = np.abs(librosa.stft(x, self.n_fft, self.hop_length, self.win_length, self.window))
+        elif self.spectype == 'mel':
+            D = librosa.feature.melspectrogram(x, sr, n_fft=self.n_fft, hop_length=self.hop_length, win_length=self.win_length, window=self.window)
+        elif self.spectype == 'cqt':
+            D = np.abs(librosa.cqt(x, sr, self.hop_length, window=self.window))
+        else: 
+            raise Exception('Parameter spectype must be set to \'stft\', \'mel\' or \'cqt\'')
+        
+        peaks = self.pick_peaks(D)
+        hash_dict = self.hash_peaks(peaks, identity)
+        
+        return hash_dict
+
+
+    # Custom implementation for picking peaks, accepts spectrogram as input
+    def pick_peaks(self, D):
+
+        # The only shapes available are square, diamond and disk.
+        assert self.shape == 'square' or self.shape == 'diamond' or self.shape == 'disk',\
+        'Parameter shape must be set to \'disk\', \'diamond\' or \'square\''
+
+        # Compute the constellation map
+        data = np.log(D)
+        footprint = eval(self.shape + '(' + str(self.neighbourhood) + ')')  # formulates kernel from params
+        max_blobs = ndimage.maximum_filter(data, footprint=footprint)
+        const_map = data == max_blobs
+
+        # Only considers the points within a normal distribution
+        if self.uniform:
+            stdev = np.std(max_blobs)
+            mean = np.mean(max_blobs)
+            distribution = np.multiply(data >= (mean-stdev), data <= (mean+stdev))
+            const_map = np.multiply(const_map, distribution)
+
+        if self.show:
+            plt.figure(figsize=(20, 5))
+            plt.title('Spectrogram')
+            plt.xlabel('Frames')
+            plt.ylabel('Frequency bins')
+            plt.imshow(librosa.amplitude_to_db(D,ref=np.max), origin='lower', cmap='gray_r')
+
+            plt.figure(figsize=(20, 5))
+            plt.title('Max Blobs')
+            plt.xlabel('Frames')
+            plt.ylabel('Frequency bins')
+            plt.imshow(max_blobs, origin='lower', cmap='gray_r')
+
+            plt.figure(figsize=(20, 5))
+            plt.title('Constellaiton Map')
+            plt.xlabel('Frames')
+            plt.ylabel('Frequency bins')
+            plt.imshow(const_map, origin='lower', cmap='gray_r')
+
+        # Gets coordinate information
+        freq_y, time_x = np.nonzero(const_map)
+        coordinates = list(zip(freq_y, time_x))
+
+        # Sorts with respect to time then frequency
+        coordinates = sorted(coordinates , key=lambda p: [p[1], p[0]])
+
+        return coordinates
+
+
+    # Note that size is in terms of (frequency bins, time frames)
+    def hash_peaks(self, peaks, identity):
+        
+        d = {}
+
+        # Iterate through anchor points
+        for anchor in peaks:
             
-            # Validates as a target if within target zone
-            if target[0] >= freq_start and target[0] <= freq_end \
-                and target[1] >= time_start and target[1] <= time_end:
+            # Preparing target zone boundaries
+            freq_start = anchor[0] - (self.targetsize[0]//2)
+            freq_end = anchor[0] + (self.targetsize[0]//2)
+            time_start = anchor[1] + self.gap
+            time_end = time_start + self.targetsize[1]
+            
+            # Hash only points within the target zone
+            for target in peaks:
                 
-                time_diff = target[1] - anchor[1]
-                key = '{}-{}-{}'.format(str(anchor[0]), str(target[0]), str(time_diff))
-                
-                d[key] = anchor[1]
+                # Validates as a target if within target zone
+                if target[0] >= freq_start and target[0] <= freq_end \
+                    and target[1] >= time_start and target[1] <= time_end:
+                    
+                    # Generates key-value pair with information
+                    time_diff = target[1] - anchor[1]
+                    key = '{}-{}-{}'.format(str(anchor[0]), str(target[0]), str(time_diff))
+                    d[key] = (anchor[1], identity)
 
-    return d
+        return d
+
+
+if __name__ == '__main__':
+    fingerPrintBuilder('data/database_recordings', 'data/fingerprints/test.pickle')
