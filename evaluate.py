@@ -1,9 +1,3 @@
-from collections import Counter
-from fingerprint import fingerprintBuilder
-from util import load_pickle
-from tqdm import tqdm
-import os
-
 # Test match of wavfile title with ground_truth title 
 def strmatch(ground_truth, wavfile):
     if wavfile[:-4] == ground_truth:
@@ -44,17 +38,15 @@ def evaluate(outfile):
 # Evaluate recall of results of paramater varied experiments
 def evaluate_experiments():
 
-    # data = ['stft', 'mel', 'cqt',
-    #         'disk', 'diamond', 'square',
-    #         'uniform-true', 'uniform-false',
-    #         'neigh-5', 'neigh-10', 'neigh-20', 'neigh-50',
-    #         'gap-0', 'gap-50', 'gap-100',
-    #         't-200-400', 't-200-200', 't-400-200']
+    data = ['stft', 'mel', 'cqt',
+            'disk', 'diamond', 'square',
+            'uniform-true', 'uniform-false',
+            'neigh-5', 'neigh-10', 'neigh-20', 
+            'gap-0', 'gap-50', 'gap-100',
+            't-200-400', 't-200-200', 't-400-200']
 
-    # for d in data:
-    #     evaluate('data/output/'+d+'.txt')
-
-    evaluate('data/output/neigh-50.txt')
+    for d in data:
+        evaluate('data/output/'+d+'.txt')
 
 if __name__ == '__main__':
     evaluate_experiments()

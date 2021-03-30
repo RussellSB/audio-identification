@@ -40,17 +40,15 @@ def audioIdentification(querysetPath, indexfile, outfile):
 # Query all the database versions indexed in different ways and save results
 def query_experiments():
 
-    # data = ['stft', 'mel', 'cqt',
-    #         'disk', 'diamond', 'square',
-    #         'uniform-true', 'uniform-false',
-    #         'neigh-5', 'neigh-10', 'neigh-20', 'neigh-50',
-    #         'gap-0', 'gap-50', 'gap-100',
-    #         't-200-400', 't-200-200', 't-400-200']
+    data = ['stft', 'mel', 'cqt',
+            'disk', 'diamond', 'square',
+            'uniform-true', 'uniform-false',
+            'neigh-5', 'neigh-10', 'neigh-20',
+            'gap-0', 'gap-50', 'gap-100',
+            't-200-400', 't-200-200', 't-400-200']
 
-    # for d in data:
-    #     audioIdentification('data/query_recordings', 'data/fingerprints/'+d+'.pickle', 'data/output/'+d+'.txt')
-
-    audioIdentification('data/query_recordings', 'data/fingerprints/neigh-50.pickle', 'data/output/neigh-50.txt')
+    for d in data:
+        audioIdentification('data/query_recordings', 'data/fingerprints/'+d+'.pickle', 'data/output/'+d+'.txt')
 
 
 if __name__ == '__main__':

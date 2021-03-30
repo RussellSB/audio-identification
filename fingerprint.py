@@ -148,32 +148,31 @@ class fingerprintBuilder:
 # A wide variety of example cases, performed in order to evaluate parameters for each step of the pipeline
 def index_experiments():
 
-    # # Investigating spectrogram type
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/stft.pickle', spectype='stft')
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/mel.pickle', spectype='mel')
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/cqt.pickle', spectype='cqt')
+    # Investigating spectrogram type
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/stft.pickle', spectype='stft')
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/mel.pickle', spectype='mel')
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/cqt.pickle', spectype='cqt')
 
-    # # Investigating shape (const map)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/disk.pickle', shape='disk')
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/diamond.pickle', shape='diamond')
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/square.pickle', shape='square')
-    # # Investigating uniformity (const map)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/uniform-true.pickle', uniform=True)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/uniform-false.pickle', uniform=False)
+    # Investigating shape (const map)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/disk.pickle', shape='disk')
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/diamond.pickle', shape='diamond')
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/square.pickle', shape='square')
+    # Investigating uniformity (const map)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/uniform-true.pickle', uniform=True)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/uniform-false.pickle', uniform=False)
     # Investigating neighbourhood (const map)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-5.pickle', neighbourhood=5)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-10.pickle', neighbourhood=10)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-20.pickle', neighbourhood=20)
-    fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-50.pickle', neighbourhood=50)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-5.pickle', neighbourhood=5)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-10.pickle', neighbourhood=10)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/neigh-20.pickle', neighbourhood=20)
 
-    # # Investigating targetsize (hashing)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-0.pickle', gap=0)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-50.pickle', gap=50)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-100.pickle', gap=100)
-    # # Investigating targetsize (hashing)
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-200-400.pickle', targetsize=(200,400))
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-200-200.pickle', targetsize=(200,200))
-    # fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-400-200.pickle', targetsize=(400,200))
+    # Investigating targetsize (hashing)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-0.pickle', gap=0)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-50.pickle', gap=50)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/gap-100.pickle', gap=100)
+    # Investigating targetsize (hashing)
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-200-400.pickle', targetsize=(200,400))
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-200-200.pickle', targetsize=(200,200))
+    fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-400-200.pickle', targetsize=(400,200))
 
 
 if __name__ == '__main__':
