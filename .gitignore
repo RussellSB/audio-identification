@@ -1,0 +1,5 @@
+data/
+pdf/
+arbitrary-default-params.JPG
+.ipynb_checkpoints/
+__pycache__/
