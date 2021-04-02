@@ -33,24 +33,31 @@ def index_experiments():
     fingerprintBuilder('data/database_recordings', 'data/fingerprints/t-400-200.pickle', targetsize=(400,200))
 
 
-def match_and_evaluate():
+# Use data list as we dont have to worry about parameters, but just experiment names
+def match_experiments(data):
+    for d in data:
+        audioIdentification('data/query_recordings', 'data/fingerprints/'+d+'.pickle', 'data/output/'+d+'.txt')
+
+
+# Use data list as we dont have to worry about parameters, but just experiment names
+def evaluate_experiments(data):
+    for d in data:
+        evaluate('data/output/'+d+'.txt')
+
+
+# Made for reproducibility purposes, this should run all tested experiments with varying parameters
+def run_experiments():
 
     data = ['stft', 'mel', 'cqt',
-            'disk', 'diamond', 'square',
-            'uniform-true', 'uniform-false',
-            'neigh-5', 'neigh-10', 'neigh-20',
-            'gap-0', 'gap-50', 'gap-100',
-            't-200-400', 't-200-200', 't-400-200']
+        'disk', 'diamond', 'square',
+        'uniform-true', 'uniform-false',
+        'neigh-5', 'neigh-10', 'neigh-20',
+        'gap-0', 'gap-50', 'gap-100',
+        't-200-400', 't-200-200', 't-400-200']
 
-    #for d in data:
-    d='stft'
-    audioIdentification('data/query_recordings', 'data/fingerprints/'+d+'.pickle', 'data/output/'+d+'.txt')
-    evaluate('data/output/'+d+'.txt')
-
-
-def run_experiments():
-    # index_experiments()
-    match_and_evaluate()
+    #index_experiments()  # Assemble fingerprints of database
+    match_experiments(data)  # Assemble fingerprints of queries, and match with that of database
+    evaluate_experiments(data)  # Evaluate matching results via recall up to three ranks
     
 
 if __name__ == '__main__':
