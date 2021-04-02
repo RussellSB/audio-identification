@@ -29,17 +29,17 @@ def match(queryfile, db):
 
     q = db.fingerprint(queryfile)  # finger print with same database params
     time_offsets = get_offsets(q, db)  # gets offsets between db and query fingerprints
-    scoring = Counter() # TODO: change
+    scoring = Counter()  
 
     for title in time_offsets:
         track_offsets = time_offsets[title]  # List of time offsets
-        offset_count = Counter()  # counter dictionary
+        offset_count = Counter() 
 
         for offset in track_offsets:
             offset_count[offset] += 1  # count each offset per track
 
         counts = sorted(offset_count.values())
-        scoring[title] = counts[-1] # add the most popular offset as the score
+        scoring[title] = counts[-1] # have the most popular offset as the score
         
     return scoring.most_common()[:3]  # returns top three most common titles
 
