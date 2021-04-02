@@ -1,31 +1,55 @@
-from collections import Counter
+from collections import Counter, defaultdict
 from fingerprint import fingerprintBuilder
 from util import load_pickle
-from tqdm import tqdm
+from tqdm.auto import tqdm
+import numpy as np
 import os
 
 
-# Matches query and database features and returns scoring
-def match(queryfile, db):
-    q = db.fingerprint(queryfile)
-    
-    scoring = Counter()
+def get_offsets(q, db):
+
+    time_offsets = defaultdict(list)  # stores a list of offset values for each hashkey match
 
     for feature in q:
         if feature in db.data:
+            
+            data_start_time = db.data[feature][0]
+            query_start_time = q[feature]
 
             identity = db.data[feature][1]
             title = db.identity2title[identity]
-            scoring[title] += 1
 
-    return scoring.most_common()[:3]  # returns top three most common
+            time_offset = data_start_time - query_start_time # compute starting time differences
+            time_offsets[title].append(time_offset)  # storing by song title with feature match
+
+    return time_offsets
+
+# Matches query and database features and returns scoring
+def match(queryfile, db):
+
+    q = db.fingerprint(queryfile)  # finger print with same database params
+    time_offsets = get_offsets(q, db)  # gets offsets between db and query fingerprints
+    scoring = Counter() # TODO: change
+
+    for title in time_offsets:
+        track_offsets = time_offsets[title]  # List of time offsets
+        offset_count = Counter()  # counter dictionary
+
+        for offset in track_offsets:
+            offset_count[offset] += 1  # count each offset per track
+
+        counts = sorted(offset_count.values())
+        scoring[title] = counts[-1] # add the most popular offset as the score
+        
+    return scoring.most_common()[:3]  # returns top three most common titles
 
 
 # Performs query matching for all queries in query set
 def audioIdentification(querysetPath, indexfile, outfile):
     db = load_pickle(indexfile)
 
-    f = open(outfile, 'a')
+    open(outfile, 'w').close() # Clears file from any previous runs
+    f = open(outfile, 'a')  # Opens file for appending
 
     for queryfile in tqdm(os.listdir(querysetPath)):
         top_matches = match(querysetPath+'/'+queryfile, db)
@@ -36,20 +60,3 @@ def audioIdentification(querysetPath, indexfile, outfile):
             line += matches[0] + '\t'  # Append song name in order of rank
         f.write(line+'\n')
         
-
-# Query all the database versions indexed in different ways and save results
-def query_experiments():
-
-    data = ['stft', 'mel', 'cqt',
-            'disk', 'diamond', 'square',
-            'uniform-true', 'uniform-false',
-            'neigh-5', 'neigh-10', 'neigh-20',
-            'gap-0', 'gap-50', 'gap-100',
-            't-200-400', 't-200-200', 't-400-200']
-
-    for d in data:
-        audioIdentification('data/query_recordings', 'data/fingerprints/'+d+'.pickle', 'data/output/'+d+'.txt')
-
-
-if __name__ == '__main__':
-    query_experiments()

@@ -34,20 +34,3 @@ def evaluate(outfile):
 
     print(outfile, recall_rank) 
 
-
-# Evaluate recall of results of paramater varied experiments
-def evaluate_experiments():
-
-    data = ['stft', 'mel', 'cqt',
-            'disk', 'diamond', 'square',
-            'uniform-true', 'uniform-false',
-            'neigh-5', 'neigh-10', 'neigh-20', 
-            'gap-0', 'gap-50', 'gap-100',
-            't-200-400', 't-200-200', 't-400-200']
-
-    for d in data:
-        evaluate('data/output/'+d+'.txt')
-
-if __name__ == '__main__':
-    evaluate_experiments()
-
