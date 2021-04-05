@@ -1,4 +1,7 @@
-data/
+data/database_recordings/
+data/query_recordings/
+data/fingerprints/
+images/
 pdf/
 arbitrary-default-params.JPG
 .ipynb_checkpoints/
