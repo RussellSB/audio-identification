@@ -1,6 +1,14 @@
 # audio-identification
 A musical audio retrieval system with fingerprints, following the algorithm presented by [Wang 2003](https://www.researchgate.net/publication/220723446_An_Industrial_Strength_Audio_Search_Algorithm). This is the approach that Shazam took at the time, but has improved on since then.
 
+## Source
+
+Note that the files storing the main source code of this program are:
+
+* fingerprint.py - Indexes database audio files as audio fingerprints.
+* match.py - Indexes query and matches with fingerprints in database.
+* evaluate.py - Evaluates recall from matched results up to a retrieval rank of 3.
+
 ## Setup
 The required packages are enlisted in requirements.txt. It's recommended to use a virtualenv using pip (alternatively conda should also suffice).  From a command line interface with pip, the virtual environment can be created, activated and updated with the required packages as follows:
 
