@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 ## Data
 
-For the data I/O a folder "data" must be present from the root directory. The following directories may also need to be included.
+For the data I/O a folder called "data" must be present from the root directory. The following directories may also need to be included.
 
 ```
 data
