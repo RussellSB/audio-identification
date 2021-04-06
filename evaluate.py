@@ -31,18 +31,20 @@ def get_recalls(f, lines, genre='classical'):
         retrieved = result['retrieved']
         ground_truth = result['ground_truth']
 
-        # Update ranks up to a cut off of three accordingly
+        # Update all three recalls with a match at rank one
         if strmatch(ground_truth, retrieved[0]):
             recall_rank[0] += 1/total
-            recall_rank[1] += 1/(total*2)
-            recall_rank[2] += 1/(total*3)
+            recall_rank[1] += 1/total
+            recall_rank[2] += 1/total
 
+        # Update last two recalls with a match at rank two
         if strmatch(ground_truth, retrieved[1]):
-            recall_rank[1] += 1/(total*2)
-            recall_rank[2] += 1/(total*3)
+            recall_rank[1] += 1/total
+            recall_rank[2] += 1/total
         
+        # Update just the last recall with a match at rank three
         if strmatch(ground_truth, retrieved[2]):
-            recall_rank[2] += 1/(total*3)
+            recall_rank[2] += 1/total
 
     return recall_rank
 

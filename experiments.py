@@ -55,9 +55,9 @@ def run_experiments():
         'gap-0', 'gap-50', 'gap-100',
         't-200-400', 't-200-200', 't-400-200']
 
-    index_experiments()  # Assemble fingerprints of database
-    match_experiments(data)  # Assemble fingerprints of queries, and match with that of database
-    evaluate_experiments(data, 'avg')  # Evaluate matching results via recall up to three ranks
+    #index_experiments()  # Assemble fingerprints of database
+    #match_experiments(data)  # Assemble fingerprints of queries, and match with that of database
+    evaluate_experiments(data, 'pop')  # Evaluate matching results via recall up to three ranks
 
 
 if __name__ == '__main__':
